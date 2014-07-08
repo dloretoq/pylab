@@ -29,17 +29,18 @@
 def subway(**lines):
     """Define a subway map. Input is subway(linename='station1 station2...'...).
     Convert that and return a dict of the form: {station:{neighbor:line,...},...}"""
-    ## your code here
+    # # your code here
     result = dict()
     for (line, stations) in lines.items():
         stations_list = stations.split()
         for i in range(len(stations_list)):
             result[stations_list[i]] = dict() if stations_list[i] not in result else result[stations_list[i]]
             if i != 0:
-                result[stations_list[i]][stations_list[i-1]] = line
+                result[stations_list[i]][stations_list[i - 1]] = line
             if i != len(stations_list) - 1:
-                result[stations_list[i]][stations_list[i+1]] = line
+                result[stations_list[i]][stations_list[i + 1]] = line
     return result
+
 
 boston = subway(
     blue='bowdoin government state aquarium maverick airport suffolk revere wonderland',
@@ -47,24 +48,32 @@ boston = subway(
     green='lechmere science north haymarket government park copley kenmore newton riverside',
     red='alewife davis porter harvard central mit charles park downtown south umass mattapan')
 
+
 def ride(here, there, system=boston):
     "Return a path on the subway system from here to there."
-    ## your code here
+    # # your code here
     def is_goal(state): return there == state
-    def successors(state): return system[state] 
+
+    def successors(state): return system[state]
+
     return shortest_path_search(here, successors, is_goal)
+
 
 def longest_ride(system):
     """"Return the longest possible 'shortest path' 
     ride between any two stops in the system."""
-    ## your code here
+    # # your code here
     result = []
-    def successors(state): return system[state] 
+
+    def successors(state):
+        return system[state]
+
     for i in system:
         for j in system:
             if i != j:
                 def is_goal(state): return j == state
-                result.append(shortest_path_search(i,successors,is_goal))
+
+                result.append(shortest_path_search(i, successors, is_goal))
     return max(result, key=len)
 
 
@@ -73,8 +82,8 @@ def shortest_path_search(start, successors, is_goal):
     such that is_goal(state) is true."""
     if is_goal(start):
         return [start]
-    explored = set() # set of states we have visited
-    frontier = [ [start] ] # ordered list of paths we have blazed
+    explored = set()  # set of states we have visited
+    frontier = [[start]]  # ordered list of paths we have blazed
     while frontier:
         path = frontier.pop(0)
         s = path[-1]
@@ -88,13 +97,16 @@ def shortest_path_search(start, successors, is_goal):
                     frontier.append(path2)
     return []
 
+
 def path_states(path):
     "Return a list of states in this path."
     return path[0::2]
-    
+
+
 def path_actions(path):
     "Return a list of actions in this path."
     return path[1::2]
+
 
 def test_ride():
     assert ride('mit', 'government') == [
@@ -107,11 +119,12 @@ def test_ride():
         'mit', 'red', 'central', 'red', 'harvard', 'red', 'porter', 'red', 'davis', 'red', 'alewife']
     assert (path_states(longest_ride(boston)) == [
         'wonderland', 'revere', 'suffolk', 'airport', 'maverick', 'aquarium', 'state', 'downtown', 'park',
-        'charles', 'mit', 'central', 'harvard', 'porter', 'davis', 'alewife'] or 
-        path_states(longest_ride(boston)) == [
-                'alewife', 'davis', 'porter', 'harvard', 'central', 'mit', 'charles', 
+        'charles', 'mit', 'central', 'harvard', 'porter', 'davis', 'alewife'] or
+            path_states(longest_ride(boston)) == [
+                'alewife', 'davis', 'porter', 'harvard', 'central', 'mit', 'charles',
                 'park', 'downtown', 'state', 'aquarium', 'maverick', 'airport', 'suffolk', 'revere', 'wonderland'])
     assert len(path_states(longest_ride(boston))) == 16
     return 'test_ride passes'
+
 
 print test_ride()

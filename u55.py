@@ -31,7 +31,7 @@ def roll(state, d):
     and it is the other player's turn. If d > 1, add d to 'pending' points."""
     # your code here
     p, me, you, pending = state
-    if(d == 1):
+    if (d == 1):
         p = 0 if p == 1 else 1
         me = me + 1
         me, you = you, me
@@ -47,5 +47,6 @@ def test():
     assert roll((1, 10, 20, 7), 1) == (0, 20, 11, 0)
     assert roll((0, 5, 15, 10), 5) == (0, 5, 15, 15)
     return 'tests pass'
+
 
 print test()

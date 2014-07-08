@@ -51,8 +51,8 @@ def play_pig(A, B):
         else:
             action = B(state)
         state = roll(state, random.randint(1, 6)
-                     ) if action == 'roll' else hold(state)
-        (p, me, you, pending) = state   
+        ) if action == 'roll' else hold(state)
+        (p, me, you, pending) = state
     return A if me >= goal else B
 
 
@@ -69,5 +69,6 @@ def test():
         winner = play_pig(always_hold, always_roll)
         assert winner.__name__ == 'always_roll'
     return 'tests pass'
+
 
 print test()

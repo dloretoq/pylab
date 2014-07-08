@@ -15,18 +15,23 @@
 
 from functools import update_wrapper
 
+
 def decorator(d):
     "Make function d a decorator: d wraps a function fn."
+
     def _d(fn):
         return update_wrapper(d(fn), fn)
+
     update_wrapper(_d, d)
     return _d
+
 
 @decorator
 def memo(f):
     """Decorator that caches the return value for each call to f(args).
     Then when called again with same args, we can just look it up."""
     cache = {}
+
     def _f(*args):
         try:
             return cache[args]
@@ -36,18 +41,23 @@ def memo(f):
         except TypeError:
             # some element of args refuses to be a dict key
             return f(args)
+
     _f.cache = cache
     return _f
 
+
 goal = 40
 
-def Pwin2(state):
-   """The utility of a state; here just the probability that an optimal player
-   whose turn it is to move can win from the current state."""
-   _, me, you, pending = state
-   return Pwin3(me, you, pending)
 
-other = {1:0, 0:1}
+def Pwin2(state):
+    """The utility of a state; here just the probability that an optimal player
+    whose turn it is to move can win from the current state."""
+    _, me, you, pending = state
+    return Pwin3(me, you, pending)
+
+
+other = {1: 0, 0: 1}
+
 
 def roll(state, d):
     """Apply the roll action to a state (and a die roll d) to yield a new state:
@@ -55,33 +65,37 @@ def roll(state, d):
     and it is the other player's turn. If d > 1, add d to 'pending' points."""
     (me, you, pending) = state
     if d == 1:
-        return (you, me+1, 0) # pig out; other player's turn
+        return (you, me + 1, 0)  # pig out; other player's turn
     else:
-        return (me, you, pending+d)  # accumulate die roll in pending
+        return (me, you, pending + d)  # accumulate die roll in pending
+
 
 def hold(state):
     """Apply the hold action to a state to yield a new state:
     Reap the 'pending' points and it becomes the other player's turn."""
     (me, you, pending) = state
-    return (you, me+pending, 0)
+    return (you, me + pending, 0)
 
-def Q_pig(state, action, Pwin):  
+
+def Q_pig(state, action, Pwin):
     "The expected value of choosing action in state."
     if action == 'hold':
         return 1 - Pwin3(*hold(state))
     if action == 'roll':
         return (1 - Pwin3(*roll(state, 1))
-                + sum(Pwin(*roll(state, d)) for d in (2,3,4,5,6))) / 6.
+                + sum(Pwin(*roll(state, d)) for d in (2, 3, 4, 5, 6))) / 6.
     raise ValueError
-    
+
+
 def pig_actions(state):
     "The legal actions from a state."
     _, _, pending = state
     return ['roll', 'hold'] if pending else ['roll']
 
+
 @memo
 def Pwin3(me, you, pending):
-   ## your code here
+    # # your code here
     if me + pending >= goal:
         return 1
     elif you >= goal:
@@ -90,9 +104,10 @@ def Pwin3(me, you, pending):
         state = (me, you, pending)
         return max(Q_pig(state, action, Pwin3)
                    for action in pig_actions(state))
-   
+
+
 def test():
-    epsilon = 0.0001 # used to make sure that floating point errors don't cause test() to fail
+    epsilon = 0.0001  # used to make sure that floating point errors don't cause test() to fail
     assert goal == 40
     assert len(Pwin3.cache) <= 50000
     assert Pwin2((0, 42, 25, 0)) == 1
@@ -101,6 +116,7 @@ def test():
     assert abs(Pwin2((0, 25, 32, 8)) - 0.736357188272) <= epsilon
     assert abs(Pwin2((0, 19, 35, 4)) - 0.493173612834) <= epsilon
     return 'tests pass'
+
 
 print test()
 

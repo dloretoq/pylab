@@ -31,48 +31,51 @@ def more_pour_problem(capacities, goal, start=None):
     # your code here
     def pp_is_goal(state):
         return goal in state
+
     def psuccessors(state):
         items = []
-        for i in range(0,len(state)):
+        for i in range(0, len(state)):
             if state[i] < capacities[i]:
-                tpl = update_tuple(state,i,capacities[i])
-                items.append((tpl,('fill',i)))
+                tpl = update_tuple(state, i, capacities[i])
+                items.append((tpl, ('fill', i)))
             if state[i] > 0:
-                tpl = update_tuple(state,i,0)
-                items.append((tpl,('empty',i)))
-            for j in range(0,len(state)):
+                tpl = update_tuple(state, i, 0)
+                items.append((tpl, ('empty', i)))
+            for j in range(0, len(state)):
                 if i == j:
                     continue
                 if state[i] > 0:
                     available_j = capacities[j] - state[j]
                     if available_j <= 0:
-                        continue 
+                        continue
                     val_j = state[j] + state[i] if available_j >= state[i] else state[j] + available_j
                     val_i = 0 if available_j >= state[i] else state[i] - available_j
-                    tpl = update_tuple(state,j,val_j)
-                    tpl = update_tuple(tpl,i,val_i)
-                    items.append((tpl,('pour',i, j)))      
+                    tpl = update_tuple(state, j, val_j)
+                    tpl = update_tuple(tpl, i, val_i)
+                    items.append((tpl, ('pour', i, j)))
         return dict(items)
-    start = tuple([ 0 for x in range(0,len(capacities))]) if start == None else start
-    return shortest_path_search(start, psuccessors, pp_is_goal) # <== your arguments here
+
+    start = tuple([0 for x in range(0, len(capacities))]) if start == None else start
+    return shortest_path_search(start, psuccessors, pp_is_goal)  # <== your arguments here
+
 
 def update_tuple(tpl, idx, val):
     result = []
-    for x in range(0,len(tpl)):
-        if(x == idx):
+    for x in range(0, len(tpl)):
+        if (x == idx):
             result.append(val)
         else:
             result.append(tpl[x])
     return tuple(result)
 
-    
+
 def shortest_path_search(start, successors, is_goal):
     """Find the shortest path from start state to a state
     such that is_goal(state) is true."""
     if is_goal(start):
         return [start]
     explored = set()
-    frontier = [ [start] ] 
+    frontier = [[start]]
     while frontier:
         path = frontier.pop(0)
         s = path[-1]
@@ -86,17 +89,20 @@ def shortest_path_search(start, successors, is_goal):
                     frontier.append(path2)
     return Fail
 
+
 Fail = []
-    
+
+
 def test_more_pour():
     assert more_pour_problem((1, 2, 4, 8), 4) == [
         (0, 0, 0, 0), ('fill', 2), (0, 0, 4, 0)]
     assert more_pour_problem((1, 2, 4), 3) == [
-        (0, 0, 0), ('fill', 2), (0, 0, 4), ('pour', 2, 0), (1, 0, 3)] 
+        (0, 0, 0), ('fill', 2), (0, 0, 4), ('pour', 2, 0), (1, 0, 3)]
     starbucks = (8, 12, 16, 20, 24)
     assert not any(more_pour_problem(starbucks, odd) for odd in (3, 5, 7, 9))
     assert all(more_pour_problem((1, 3, 9, 27), n) for n in range(28))
     assert more_pour_problem((1, 3, 9, 27), 28) == []
     return 'test_more_pour passes'
+
 
 print test_more_pour()

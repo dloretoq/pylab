@@ -19,6 +19,7 @@
 
 import random
 
+
 def pig_actions_d(state):
     """The legal actions from a state. Usually, ["roll", "hold"].
     Exceptions: If double is "double", can only "accept" or "decline".
@@ -33,12 +34,13 @@ def pig_actions_d(state):
     (p, me, you, pending, double) = state
     # your code here
 
+
 def strategy_d(state):
-# your code here
+    # your code here
     return ""
 
 
-## You can use the code below, but don't need to modify it.
+# # You can use the code below, but don't need to modify it.
 
 def hold_20_d(state):
     "Hold at 20 pending.  Always accept; never double."
@@ -47,13 +49,16 @@ def hold_20_d(state):
             'hold' if (pending >= 20 or me + pending >= goal) else
             'roll')
 
+
 def clueless_d(state):
     return random.choice(pig_actions_d(state))
+
 
 def dierolls():
     "Generate die rolls."
     while True:
         yield random.randint(1, 6)
+
 
 def play_pig_d(A, B, dierolls=dierolls()):
     """Play a game of pig between two players, represented by their strategies.
@@ -72,6 +77,7 @@ def play_pig_d(A, B, dierolls=dierolls()):
             action = strategies[p](state)
             state = do(action, state, dierolls)
 
+
 ## No more roll() and hold(); instead, do:
 
 def do(action, state, dierolls):
@@ -84,11 +90,11 @@ def do(action, state, dierolls):
     elif action == 'roll':
         d = next(dierolls)
         if d == 1:
-            return (other[p], you, me+1, 0, double) # pig out; other player's turn
+            return (other[p], you, me + 1, 0, double)  # pig out; other player's turn
         else:
-            return (p, me, you, pending+d, double)  # accumulate die in pending
+            return (p, me, you, pending + d, double)  # accumulate die in pending
     elif action == 'hold':
-        return (other[p], you, me+pending, 0, double)
+        return (other[p], you, me + pending, 0, double)
     elif action == 'double':
         return (other[p], you, me, pending, 'double')
     elif action == 'decline':
@@ -96,8 +102,10 @@ def do(action, state, dierolls):
     elif action == 'accept':
         return (other[p], you, me, pending, 2)
 
+
 goal = 40
-other = {1:0, 0:1}
+other = {1: 0, 0: 1}
+
 
 def strategy_compare(A, B, N=1000):
     """Takes two strategies, A and B, as input and returns the percentage
@@ -110,18 +118,22 @@ def strategy_compare(A, B, N=1000):
             winner, points = play_pig_d(B, A)
         if winner.__name__ == A.__name__:
             A_points += points
-        else: B_points += points
-    A_percent = 100*A_points / float(A_points + B_points)
-    print 'In %s games of pig, strategy %s took %s percent of the points against %s.' % (N, A.__name__, A_percent, B.__name__)
+        else:
+            B_points += points
+    A_percent = 100 * A_points / float(A_points + B_points)
+    print 'In %s games of pig, strategy %s took %s percent of the points against %s.' % (
+    N, A.__name__, A_percent, B.__name__)
     return A_percent
 
+
 def test():
-    assert set(pig_actions_d((0, 2, 3, 0, 1)))          == set(['roll', 'double'])
-    assert set(pig_actions_d((1, 20, 30, 5, 2)))        == set(['hold', 'roll'])
-    assert set(pig_actions_d((0, 5, 5, 5, 1)))          == set(['roll', 'hold', 'double'])
+    assert set(pig_actions_d((0, 2, 3, 0, 1))) == set(['roll', 'double'])
+    assert set(pig_actions_d((1, 20, 30, 5, 2))) == set(['hold', 'roll'])
+    assert set(pig_actions_d((0, 5, 5, 5, 1))) == set(['roll', 'hold', 'double'])
     assert set(pig_actions_d((1, 10, 15, 6, 'double'))) == set(['accept', 'decline'])
-    assert strategy_compare(strategy_d, hold_20_d) > 60 # must win 60% of the points      
+    assert strategy_compare(strategy_d, hold_20_d) > 60  # must win 60% of the points
     return 'test passes'
+
 
 print test()
 
