@@ -80,9 +80,9 @@ def hold(state):
 def Q_pig(state, action, Pwin):
     "The expected value of choosing action in state."
     if action == 'hold':
-        return 1 - Pwin3(*hold(state))
+        return 1 - Pwin(*hold(state))
     if action == 'roll':
-        return (1 - Pwin3(*roll(state, 1))
+        return (1 - Pwin(*roll(state, 1))
                 + sum(Pwin(*roll(state, d)) for d in (2, 3, 4, 5, 6))) / 6.
     raise ValueError
 
