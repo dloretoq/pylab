@@ -18,6 +18,42 @@
 # marked correct. Happy pigging!
 
 import random
+from functools import update_wrapper
+
+
+def dierolls():
+    "Generate die rolls."
+    while True:
+        yield random.randint(1, 6)
+
+
+def decorator(d):
+    "Make function d a decorator: d wraps a function fn."
+
+    def _d(fn):
+        return update_wrapper(d(fn), fn)
+
+    update_wrapper(_d, d)
+    return _d
+
+
+@decorator
+def memo(f):
+    """Decorator that caches the return value for each call to f(args).
+    Then when called again with same args, we can just look it up."""
+    cache = {}
+
+    def _f(*args):
+        try:
+            return cache[args]
+        except KeyError:
+            cache[args] = result = f(*args)
+            return result
+        except TypeError:
+            # some element of args can't be a dict key
+            return f(args)
+
+    return _f
 
 
 def pig_actions_d(state):
@@ -41,9 +77,74 @@ def pig_actions_d(state):
     return actions
 
 
+def roll(state, d):
+    (p, me, you, pending, double) = state
+    if d == 1:
+        return (other[p], you, me + 1, 0, double)  # pig out; other player's turn
+    else:
+        return (p, me, you, pending + d, double)  # accumulate die in pending
+
+
+def Q_pig(state, action, pwin, dierolls=dierolls()):
+    "The expected value of choosing action in state."
+    if action == 'hold':
+        return 1 - pwin(do(action, state, dierolls))
+    if action == 'roll':
+        return (1 - pwin(roll(state, 1))
+                + sum(pwin(roll(state, d)) for d in (2, 3, 4, 5, 6))) / 6.
+    if action == 'double':
+        p_roll = Q_pig(state, 'roll', pwin)
+        p_hold = Q_pig(state, 'hold', pwin)
+        return max([p_hold, p_roll]) if p_roll > 0.75 or p_hold > 0.75 else 0
+    raise ValueError
+
+
+@memo
+def Pwin(state):
+    """The utility of a state; here just the probability that an optimal player
+    whose turn it is to move can win from the current state."""
+    # Assumes opponent also plays with optimal strategy.
+    (p, me, you, pending, double) = state
+    if me + pending >= goal:
+        return 1
+    elif you >= goal:
+        return 0
+    else:
+        return max(Q_pig(state, action, Pwin)
+                   for action in pig_actions_d(state))
+
+
+def best_action(state, actions, Q, U):
+    "Return the optimal action for a state, given U."
+
+    def EU(action): return Q(state, action, U)
+
+    return max(actions(state), key=EU)
+
+
+@memo
+def win_diff(state):
+    "The utility of a state: here the winning differential (pos or neg)."
+    (p, me, you, pending, double) = state
+    if me + pending >= goal or you >= goal:
+        return (me + pending - you)
+    else:
+        return max(Q_pig(state, action, win_diff)
+                   for action in pig_actions_d(state))
+
+
+def max_diffs(state):
+    """A strategy that maximizes the expected difference between my final score
+    and my opponent's."""
+    # your code here
+    def EU(action): return Q_pig(state, action, win_diff)
+
+    return max(pig_actions_d(state), key=EU)
+
+
 def strategy_d(state):
     # your code here
-    return ""
+    return best_action(state, pig_actions_d, Q_pig, Pwin)
 
 
 # # You can use the code below, but don't need to modify it.
@@ -58,12 +159,6 @@ def hold_20_d(state):
 
 def clueless_d(state):
     return random.choice(pig_actions_d(state))
-
-
-def dierolls():
-    "Generate die rolls."
-    while True:
-        yield random.randint(1, 6)
 
 
 def play_pig_d(A, B, dierolls=dierolls()):
@@ -84,7 +179,7 @@ def play_pig_d(A, B, dierolls=dierolls()):
             state = do(action, state, dierolls)
 
 
-## No more roll() and hold(); instead, do:
+# # No more roll() and hold(); instead, do:
 
 def do(action, state, dierolls):
     """Return the state that results from doing action in state.
@@ -128,7 +223,7 @@ def strategy_compare(A, B, N=1000):
             B_points += points
     A_percent = 100 * A_points / float(A_points + B_points)
     print 'In %s games of pig, strategy %s took %s percent of the points against %s.' % (
-    N, A.__name__, A_percent, B.__name__)
+        N, A.__name__, A_percent, B.__name__)
     return A_percent
 
 
