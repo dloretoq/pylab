@@ -95,7 +95,7 @@ def Q_pig(state, action, pwin, dierolls=dierolls()):
     if action == 'double':
         p_roll = Q_pig(state, 'roll', pwin)
         p_hold = Q_pig(state, 'hold', pwin)
-        return max([p_hold, p_roll]) if p_roll > 0.75 or p_hold > 0.75 else 0
+        return max([p_hold, p_roll]) + 0.01 if p_roll > 0.98 or p_hold > 0.98 else 0
     raise ValueError
 
 
@@ -120,26 +120,6 @@ def best_action(state, actions, Q, U):
     def EU(action): return Q(state, action, U)
 
     return max(actions(state), key=EU)
-
-
-@memo
-def win_diff(state):
-    "The utility of a state: here the winning differential (pos or neg)."
-    (p, me, you, pending, double) = state
-    if me + pending >= goal or you >= goal:
-        return (me + pending - you)
-    else:
-        return max(Q_pig(state, action, win_diff)
-                   for action in pig_actions_d(state))
-
-
-def max_diffs(state):
-    """A strategy that maximizes the expected difference between my final score
-    and my opponent's."""
-    # your code here
-    def EU(action): return Q_pig(state, action, win_diff)
-
-    return max(pig_actions_d(state), key=EU)
 
 
 def strategy_d(state):
