@@ -33,6 +33,12 @@ def pig_actions_d(state):
     # for the other to accept or decline
     (p, me, you, pending, double) = state
     # your code here
+    if double == 'double':
+        return ['accept', 'decline']
+    actions = ['roll', 'hold'] if pending else ['roll']
+    if double == 1:
+        actions.append('double')
+    return actions
 
 
 def strategy_d(state):
