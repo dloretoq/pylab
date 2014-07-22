@@ -42,10 +42,8 @@ def do(action, state):
     #
     # your code here
     score, yard, cards = state
-    cards_list = list(cards)
-    card = random.choice(cards_list)
-    cards_list.remove(card)
-    cards = "".join(cards_list)
+    card = random.choice(cards)
+    cards = cards.replace(card, '', 1)
     if action == 'gather':
         score = score + yard
         yard = 0
@@ -101,5 +99,5 @@ def test():
 
 
 print test()
-#print foxes_and_hens(strategy)
+# print foxes_and_hens(strategy)
 
