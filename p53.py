@@ -41,6 +41,20 @@ def do(action, state):
     # Make sure you always use up one card.
     #
     # your code here
+    score, yard, cards = state
+    cards_list = list(cards)
+    card = random.choice(cards_list)
+    cards_list.remove(card)
+    cards = "".join(cards_list)
+    if action == 'gather':
+        score = score + yard
+        yard = 0
+    else:
+        if card == 'H':
+            yard += 1
+        else:
+            yard = 0
+    return score, yard, cards
 
 
 def take5(state):
@@ -64,6 +78,13 @@ def superior(A, B=take5):
 def strategy(state):
     (score, yard, cards) = state
     # your code here
+    cards_list = list(cards)
+    total = len(cards_list)
+    p_foxes = cards_list.count('F') / float(total)
+    p_hens = cards_list.count('H') / float(total)
+    if p_hens > p_foxes and yard < 3:
+        return 'wait'
+    return 'gather'
 
 
 def test():
@@ -80,5 +101,5 @@ def test():
 
 
 print test()
-
+#print foxes_and_hens(strategy)
 
