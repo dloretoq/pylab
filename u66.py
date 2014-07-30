@@ -17,8 +17,8 @@ def readwordlist(filename):
     file = open(filename)  # opens file
     text = file.read()  # gets file into string
     # your code here
-    wordset = text.upper().split()
-    prefixset = set([prefix for word in wordset for prefix in prefixes(word)])
+    wordset = set(text.upper().split())
+    prefixset = set(prefix for word in wordset for prefix in prefixes(word))
     return wordset, prefixset
 
 
