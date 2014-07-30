@@ -41,7 +41,7 @@ def find_words(letters):
         for L in letters:
             # ##Your code here.
             new_w = w + L
-            new_letters = removed(letters, L)
+            new_letters = letters.replace(L, '', 1)
             extend_prefix(new_w, new_letters)
 
     extend_prefix('', letters)
