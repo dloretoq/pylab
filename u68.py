@@ -57,9 +57,9 @@ def find_prefixes(hand, pre='', results=None):
 def add_suffixes(hand, pre, results):
     """Return the set of words that can be formed by extending pre with letters in hand."""
     ###Your code here.
-    if pre in WORDS:
-        results.add(pre)
     if pre in PREFIXES:
+        if pre in WORDS:
+            results.add(pre)
         for L in hand:
             add_suffixes(hand.replace(L, '', 1), pre + L, results)
     return results
